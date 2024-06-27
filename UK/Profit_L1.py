@@ -1,3 +1,4 @@
+# Calculate UK Profit for sp_upc_lookup 1st table 
 from pymongo import MongoClient
 from datetime import datetime
 import json

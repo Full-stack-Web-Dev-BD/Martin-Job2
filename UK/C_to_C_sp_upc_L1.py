@@ -1,6 +1,7 @@
+# Insert Data from Uk Daily Data to Sp Upc Lookup 1st table ( Mongo)
+
 from pymongo import MongoClient
 from datetime import datetime
-import json
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
@@ -40,7 +41,7 @@ def fetch_and_update():
 
             # Perform update
             result = sp_upc_lookup.update_many(
-                {"asin": asin, "to_be_removed": {"$ne": "Y"}},
+                {"asin": asin, "to_be_removed": {"$ne": "Y"},  "gsl_code": "C"},
                 {"$set": update_data}
             )
 
