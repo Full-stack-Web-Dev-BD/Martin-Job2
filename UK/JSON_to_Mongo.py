@@ -43,10 +43,10 @@ for index, row in uk_daily_data_df.iterrows():
     item = base_model.copy()
     item["_id"] = {"$oid": str(ObjectId())}  # Generate a unique ObjectId
     item["ASIN"] = row.get("ASIN")
-    item["UK_Buybox_Price_£"] = row.get("UK_Buybox_Price_£")
-    item["UK_FBA_Fees_£"] = row.get("UK_FBA_Fees_£")
-    item["UK_Variable_Closing_Fee_£"] = row.get("UK_Variable_Closing_Fee_£")
-    item["UK_Referral_Fee_£"] = row.get("UK_Referral_Fee_£")
+    item["UK_Buybox_Price"] = row.get("UK_Buybox_Price_£")
+    item["UK_FBA_Fees"] = row.get("UK_FBA_Fees_£")
+    item["UK_Variable_Closing_Fee"] = row.get("UK_Variable_Closing_Fee_£")
+    item["UK_Referral_Fee"] = row.get("UK_Referral_Fee_£")
     json_data.append(item)
 
 # Convert to JSON format

@@ -1,14 +1,15 @@
-# Calculate UK Profit for sp_upc_lookup 1st table 
+
+# Calculate UK Profit for sp_gsl_lookup2 2nd table 
+
 from pymongo import MongoClient
 from datetime import datetime
-import json
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
 db = client['mvp2']
-sp_upc_lookup = db['sp_upc_lookup']
+sp_gsl_lookup2 = db['sp_gsl_lookup2']
 uk_daily_data = db['UK_Daily_Data']
- 
+
 # Check if uk_daily_data collection has any documents
 count = uk_daily_data.count_documents({})
 print(f"Number of documents in uk_daily_data: {count}")
@@ -19,8 +20,8 @@ def calculateProfit():
         unique_asins = uk_daily_data.distinct('ASIN')
         print("ASIN's", unique_asins)
         for asin in unique_asins:
-            # Fetch all documents from sp_upc_lookup for this ASIN
-            documents = sp_upc_lookup.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'},"gsl_code": "C"})
+            # Fetch all documents from sp_gsl_lookup2 for this ASIN
+            documents = sp_gsl_lookup2.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'}, "gsl_code": "A"})
             print("Document loaded ")
             for document in documents:
                 # Calculate UK_Profit for this document
@@ -41,8 +42,8 @@ def calculateProfit():
                 uk_profit_rounded = round(uk_profit, 2)
                 
                 # Update the document with the calculated UK_Profit
-                sp_upc_lookup.update_one(
-                    {'_id': document['_id']},
+                sp_gsl_lookup2.update_one(
+                    {'_id': document['_id'],},
                     {'$set': {'UK_Profit': uk_profit_rounded}}
                 )
                 

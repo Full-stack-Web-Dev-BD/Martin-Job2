@@ -8,11 +8,7 @@ client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mon
 db = client['mvp2']
 sp_upc_lookup = db['sp_upc_lookup']
 uk_daily_data = db['UK_Daily_Data']
-
-# Arrays to store before and after update data
-before_update = []
-after_update = []
-
+ 
 # Check if uk_daily_data collection has any documents
 count = uk_daily_data.count_documents({})
 print(f"Number of documents in uk_daily_data: {count}")

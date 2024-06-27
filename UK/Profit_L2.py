@@ -10,10 +10,6 @@ db = client['mvp2']
 sp_upc_lookup = db['sp_upc_lookup2']
 uk_daily_data = db['UK_Daily_Data']
 
-# Arrays to store before and after update data
-before_update = []
-after_update = []
-
 # Check if uk_daily_data collection has any documents
 count = uk_daily_data.count_documents({})
 print(f"Number of documents in uk_daily_data: {count}")
@@ -25,7 +21,7 @@ def calculateProfit():
         print("ASIN's", unique_asins)
         for asin in unique_asins:
             # Fetch all documents from sp_upc_lookup for this ASIN
-            documents = sp_upc_lookup.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'}})
+            documents = sp_upc_lookup.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'}, "gsl_code": "C"})
             print("Document loaded ")
             for document in documents:
                 # Calculate UK_Profit for this document

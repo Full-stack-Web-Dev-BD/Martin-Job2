@@ -7,9 +7,9 @@ from datetime import datetime
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
 db = client['mvp2']
-sp_upc_lookup = db['sp_upc_lookup2']
+sp_gsl_lookup2 = db['sp_gsl_lookup2'] # Targeted Table  to be updated
 uk_daily_data = db['UK_Daily_Data']
- 
+
 # Check if uk_daily_data collection has any documents
 count = uk_daily_data.count_documents({})
 print(f"Number of documents in uk_daily_data: {count}")
@@ -20,7 +20,7 @@ def fetch_and_update():
         uk_daily_data_cursor = uk_daily_data.find()
         data_found = False
         
-        # Update sp_upc_lookup based on uk_daily_data
+        # Update sp_gsl_lookup2 based on uk_daily_data
         for row in uk_daily_data_cursor:
             data_found = True
             asin = row.get('ASIN')
@@ -37,8 +37,8 @@ def fetch_and_update():
             }
 
             # Perform update
-            result = sp_upc_lookup.update_many(
-                {"asin": asin, "to_be_removed": {"$ne": "Y"}, "gsl_code": "C"},
+            result = sp_gsl_lookup2.update_many(
+                {"asin": asin, "to_be_removed": {"$ne": "Y"}, "gsl_code": "A"},
                 {"$set": update_data}
             )
 
