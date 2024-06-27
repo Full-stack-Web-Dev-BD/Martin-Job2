@@ -1,0 +1,7 @@
+
+
+# in source data xl  in 4th sheet  : UK_Buybox_Price_£-(seller_price+UK_FBA_Fees_£+UK_Variable_Closing_Fee_£+UK_Referral_Fee_£	)=UK_Profit
+
+
+
+# so  i have  existing script  to 
