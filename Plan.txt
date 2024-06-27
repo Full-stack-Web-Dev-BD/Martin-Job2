@@ -1,0 +1,8 @@
+{'_id': ObjectId('667c1d178081e9740beb82da'), 'ASIN': 'B0B1GZP95K', 'AMZ_Marketplace': None, 'UK_Average_BSR_30d': None, 'UK_Average_BSR_90d': None, 'UK_BSR': None, 'UK_BSR%': None, 'UK_Buybox_Price': None, 'UK_Competitive_Sellers': None, 'UK_FBA_Fees': 2.07, 'UK_FBA_Offers': None, 'UK_FBM_Offers': None, 'UK_Lowest_Price_FBA': None, 'UK_Lowest_Price_FBM': None, 'UK_Number_Variations': None, 'UK_Referral_Fee': None, 'UK_Sales_per_Month': None, 'UK_Total_Offers': None, 'UK_Units_per_Month': None, 'UK_Variable_Closing_Fee': 0.5, 'UK_No_reviews': None, 'UK_Review_Rating': None, 'UK_Time_Datestamp': None}
+asin B0B1GZP95K
+buybox_price 0
+fba_fees 0
+variable_closing_fee 0
+referral_fee 0
+seller_price 0
+uk_profit 0
