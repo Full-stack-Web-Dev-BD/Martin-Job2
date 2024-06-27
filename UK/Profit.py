@@ -16,50 +16,7 @@ after_update = []
 count = uk_daily_data.count_documents({})
 print(f"Number of documents in uk_daily_data: {count}")
 
-def fetch_and_update():
-    try:
-        # Fetch data from uk_daily_data collection
-        uk_daily_data_cursor = uk_daily_data.find()
-        data_found = False
-        
-        # Update sp_upc_lookup based on uk_daily_data
-        for row in uk_daily_data_cursor:
-            data_found = True
-            asin = row.get('ASIN')
-            print("asin", asin)
-            if not asin:
-                continue  # Skip rows without ASIN
-             
-            update_data = {
-                "UK_Buybox_Price_£": row.get('UK_Buybox_Price'),
-                "UK_FBA_Fees_£": row.get('UK_FBA_Fees'),
-                "UK_Variable_Closing_Fee_£": row.get('UK_Variable_Closing_Fee'),
-                "UK_Referral_Fee_£": row.get('UK_Referral_Fee'),
-                "time_date_stamp": datetime.now()
-            }
-
-            # Perform update
-            result = sp_upc_lookup.update_many(
-                {"asin": asin, "to_be_removed": {"$ne": "Y"}},
-                {"$set": update_data}
-            )
-
-            print(f"Updated {result.matched_count} documents for ASIN: {asin}")
-
-        if not data_found:
-            print("No data found in uk_daily_data collection.")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-    finally:
-        print("============Update completed successfully SP_UPC_LOOKUP from Daily Data =============")
-
-# Call the fetch_and_update function
-fetch_and_update()
-
-
-def fetch_and_update_uk_profit():
+def calculateProfit():
     try:
         # Fetch unique ASIN values from UK_Daily_Data
         unique_asins = uk_daily_data.distinct('ASIN')
@@ -84,11 +41,12 @@ def fetch_and_update_uk_profit():
                   
                 print(f"{uk_buybox_price} - ({uk_fba_fees} + {uk_variable_closing_fee} + {uk_referral_fee} + {seller_price})")
                 uk_profit = uk_buybox_price - (uk_fba_fees + uk_variable_closing_fee + uk_referral_fee + seller_price)
+                uk_profit_rounded = round(uk_profit, 2)
                 
                 # Update the document with the calculated UK_Profit
                 sp_upc_lookup.update_one(
                     {'_id': document['_id']},
-                    {'$set': {'UK_Profit': uk_profit}}
+                    {'$set': {'UK_Profit': uk_profit_rounded}}
                 )
                 
                 print(f"Updated document with ASIN {asin}  ",document.get('_id'))
@@ -111,4 +69,4 @@ def parse_price(price_str):
     else:
         return 0  # Set default value to 0 for None or other non-string types
 
-fetch_and_update_uk_profit() 
+calculateProfit() 
