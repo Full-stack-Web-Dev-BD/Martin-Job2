@@ -52,9 +52,9 @@ def migrate_data():
                         dest_doc = {
                             "ASIN": asin,
                             "TYPE": 'A',
-                            "seller_name": doc.get('seller_name'),
-                            "seller_price": doc.get('seller_price'),
-                            "Supplier_code": doc.get('Supplier_code')
+                            "seller_name": doc.get('amazon.co.uk'),
+                            "seller_price": doc.get('UK_Buybox_Price'),
+                            "Supplier_code": "https://www.amazon.co.uk/dp/"+asin
                         }
                         # Insert into the destination collection
                         A2A_Asin_Lookup.insert_one(dest_doc)
