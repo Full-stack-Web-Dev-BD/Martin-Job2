@@ -17,14 +17,12 @@ headers = {
     "Content-Type": "application/json"
 }
 
-# Body
-body = {
-    "per_page": 100,
-    "page": 1
-}
-
 # Function to make the POST request
-def make_post_request():
+def make_post_request(page):
+    body = {
+        "per_page": 100,
+        "page": page
+    }
     try:
         response = requests.post(API_URL, headers=headers, json=body)
         response.raise_for_status()  # Raise an exception for HTTP errors
@@ -36,41 +34,55 @@ def make_post_request():
 
 # Main logic
 if __name__ == "__main__":
-    logger.info("Making POST request to RocketSource API...")
-    data = make_post_request()
-    if data:
-        # Print count
-        count = data.get("count", 0)
-        logger.info(f"Count: {count}")
+    page = 1
+    while True:
+        logger.info(f"Making POST request to RocketSource API for page {page}...")
+        data = make_post_request(page)
         
-        # Access and print data array
-        data_array = data.get("data", [])
-        
-        # Process each item in the data array
-        processed_data = []
-        for item in data_array:
-            processed_item = {
-                "ASIN":item.get("asin"),
-                "UK_Buybox_Price": item.get("buybox_price"),
-                "UK_Competitive_Sellers": item.get("competitive_sellers"),
-                "UK_FBA_Fees": item.get("amazon_fees", {}).get("fba_fees"),
-                "UK_Lowest_Price_FBA": item.get("lowest_price_new_fba"),
-                "UK_Lowest_Price_FBM": item.get("lowest_price_new_fbm"),
-                "UK_FBA_Offers": item.get("new_fba_offers_count"),
-                "UK_FBM_Offers": item.get("new_fbm_offers_count"),
-                "UK_BSR": item.get("rank"),
-                "UK_Referral_Fee": item.get("amazon_fees", {}).get("referral_fee"),
-                "UK_Sales_Per_Month": item.get("sales_per_month"),
-                "UK_Total_Offers": item.get("total_offers_count"),
-                "UK_Units_Per_Month": item.get("units_per_month"),
-                "UK_Variable_Closing_Fee": item.get("amazon_fees", {}).get("variable_closing_fee"),
-                "UK_Number_Variations": item.get("number_of_variations"),
-                "AMZ_Marketplace": item.get("marketplace_id"),
-                "UK_Time_Datestamp": datetime.now().isoformat()
-            }
-            processed_data.append(processed_item)
+        if data:
+            # Access and print data array
+            data_array = data.get("data", [])
+            
+            if not data_array:
+                logger.info(f"No more data found on page {page}. Exiting loop.")
+                break
 
-        # Print the processed data
-        logger.info("Processed Data:")
-        for item in processed_data:
-            logger.info(json.dumps(item, indent=4))
+            logger.info(f"Processing page {page} data...")
+
+            # Process each item in the data array
+            processed_data = []
+            for item in data_array:
+                processed_item = {
+                    "ASIN": item.get("asin"),
+                    "UK_Buybox_Price": item.get("buybox_price"),
+                    "UK_Competitive_Sellers": item.get("competitive_sellers"),
+                    "UK_FBA_Fees": item.get("amazon_fees", {}).get("fba_fees"),
+                    "UK_Lowest_Price_FBA": item.get("lowest_price_new_fba"),
+                    "UK_Lowest_Price_FBM": item.get("lowest_price_new_fbm"),
+                    "UK_FBA_Offers": item.get("new_fba_offers_count"),
+                    "UK_FBM_Offers": item.get("new_fbm_offers_count"),
+                    "UK_BSR": item.get("rank"),
+                    "UK_Referral_Fee": item.get("amazon_fees", {}).get("referral_fee"),
+                    "UK_Sales_Per_Month": item.get("sales_per_month"),
+                    "UK_Total_Offers": item.get("total_offers_count"),
+                    "UK_Units_Per_Month": item.get("units_per_month"),
+                    "UK_Variable_Closing_Fee": item.get("amazon_fees", {}).get("variable_closing_fee"),
+                    "UK_Number_Variations": item.get("number_of_variations"),
+                    "AMZ_Marketplace": item.get("marketplace_id"),
+                    "UK_Time_Datestamp": datetime.now().isoformat()
+                }
+                processed_data.append(processed_item)
+
+            # Print the processed data
+            logger.info("Processed Data:")
+            for item in processed_data:
+                logger.info(json.dumps(item, indent=4))
+            
+            logger.info(f"Page {page} processing done.")
+            logger.info("===== Starting next page =====")
+
+            # Increment the page number
+            page += 1
+        else:
+            logger.error(f"Failed to retrieve data for page {page}. Exiting loop.")
+            break
