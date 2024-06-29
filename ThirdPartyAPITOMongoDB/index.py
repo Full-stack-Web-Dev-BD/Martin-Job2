@@ -3,6 +3,16 @@ import json
 import logging
 from datetime import datetime
 
+
+from pymongo import MongoClient
+from datetime import datetime
+
+# Connect to MongoDB
+client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
+db = client['mvp2']
+UK_Daily_Data=db['UK_Daily_Data']
+US_Daily_Data = db['US_Daily_Data']
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,24 +43,18 @@ def make_post_request(page):
         logger.error(f"An error occurred: {err}")
 
 # UK
+
 def collect_UK_data():
     page = 1
     while True:
-        logger.info(f"Making POST request to RocketSource API for page {page}...")
         data = make_post_request(page)
         
         if data:
-            # Access and print data array
             data_array = data.get("data", [])
             
             if not data_array:
-                logger.info(f"No more data found on page {page}. Exiting loop.")
                 break
 
-            logger.info(f"Processing page {page} data...")
-
-            # Process each item in the data array
-            processed_data = []
             for item in data_array:
                 processed_item = {
                     "ASIN": item.get("asin"),
@@ -71,23 +75,21 @@ def collect_UK_data():
                     "AMZ_Marketplace": item.get("marketplace_id"),
                     "UK_Time_Datestamp": datetime.now().isoformat()
                 }
-                processed_data.append(processed_item)
-
-            # Print the processed data
-            logger.info("Processed Data:")
-            for item in processed_data:
-                logger.info(json.dumps(item, indent=4))
+                
+                # Insert the processed_item into MongoDB
+                UK_Daily_Data.insert_one(processed_item)
+                
+                # Print the ASIN code of the inserted item
+                print(f"Inserted ASIN: {processed_item['ASIN']}")
+                print(processed_item)
             
-            logger.info(f"Page {page} processing done.")
-            logger.info("===== Starting next page =====")
-
             # Increment the page number
             page += 1
         else:
-            logger.error(f"Failed to retrieve data for page {page}. Exiting loop.")
             break
+
         
-# collect_UK_data()
+collect_UK_data()
 
 def calculate_US_conversion(arg):
     _usdToGbp = 0.79
@@ -159,4 +161,4 @@ def collect_US_data():
             break
       
       
-collect_US_data()
+# collect_US_data()
