@@ -124,16 +124,6 @@ def collect_US_data():
             processed_data = []
             for item in data_array:
                 processed_item = {
-                    # US_BSR_Percentage
-                    # US_Buybox_Price
-                    # US_FBA_Fees
-                    # US_Lowest_Price_FBA
-                    # US_Lowest_Price_FBM
-                    # US_Referral_Fee
-                    # US_Sales_Per_Month
-                    # US_Variable_Closing_Fee
-
-                    
                     "ASIN": item.get("asin"),                    
                     "US_BSR_Percentage": round_to_two_decimals(item.get("bsr_percentage")),
                     "US_Buybox_Price": calculate_US_conversion(round_to_two_decimals(item.get("buybox_price"))),
@@ -153,7 +143,7 @@ def collect_US_data():
                     "AMZ_Marketplace": item.get("marketplace_id"),
                 }
                 processed_data.append(processed_item)
-
+            # Put data dircetly on mongodb  insted json 
             # Print the processed data
             logger.info("Processed Data:")
             for item in processed_data:
