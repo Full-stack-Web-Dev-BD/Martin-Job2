@@ -89,12 +89,21 @@ def collect_UK_data():
         
 # collect_UK_data()
 
-def calculate_conversion(arg):
+def calculate_US_conversion(arg):
     _usdToGbp = 0.79
     if isinstance(arg, (int, float)):
         return arg * _usdToGbp
     else:
         return None
+    
+    
+def round_to_two_decimals(value):
+    if isinstance(value, (int, float)):
+        return round(value / 100, 2)
+    else:
+        return None
+
+    
 def collect_US_data():
     page = 1
     while True:
@@ -115,21 +124,31 @@ def collect_US_data():
             processed_data = []
             for item in data_array:
                 processed_item = {
+                    # US_BSR_Percentage
+                    # US_Buybox_Price
+                    # US_FBA_Fees
+                    # US_Lowest_Price_FBA
+                    # US_Lowest_Price_FBM
+                    # US_Referral_Fee
+                    # US_Sales_Per_Month
+                    # US_Variable_Closing_Fee
+
+                    
                     "ASIN": item.get("asin"),                    
-                    "US_BSR_Percentage": item.get("bsr_percentage"),
-                    "US_Buybox_Price": calculate_conversion(item.get("buybox_price")),
+                    "US_BSR_Percentage": round_to_two_decimals(item.get("bsr_percentage")),
+                    "US_Buybox_Price": calculate_US_conversion(round_to_two_decimals(item.get("buybox_price"))),
                     "US_Competitive_Sellers": item.get("competitive_sellers"),
-                    "US_FBA_Fees":calculate_conversion(item.get("amazon_fees", {}).get("fba_fees")),
-                    "US_Lowest_Price_FBA": calculate_conversion(item.get("lowest_price_new_fba")),
-                    "US_Lowest_Price_FBM": calculate_conversion(item.get("lowest_price_new_fbm")),
+                    "US_FBA_Fees":calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("fba_fees"))),
+                    "US_Lowest_Price_FBA": calculate_US_conversion(round_to_two_decimals(item.get("lowest_price_new_fba"))),
+                    "US_Lowest_Price_FBM": calculate_US_conversion(round_to_two_decimals(item.get("lowest_price_new_fbm"))),
                     "US_FBA_Offers": item.get("new_fba_offers_count"),
                     "US_FBM_Offers": item.get("new_fbm_offers_count"),
                     "US_BSR": item.get("rank"),
-                    "US_Referral_Fee":calculate_conversion(item.get("amazon_fees", {}).get("referral_fee")),
-                    "US_Sales_Per_Month": item.get("sales_per_month"),
+                    "US_Referral_Fee":calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("referral_fee"))),
+                    "US_Sales_Per_Month": round_to_two_decimals(item.get("sales_per_month")),
                     "US_Total_Offers": item.get("total_offers_count"),
                     "US_Units_Per_Month": item.get("units_per_month"),
-                    "US_Variable_Closing_Fee":calculate_conversion(item.get("amazon_fees", {}).get("variable_closing_fee")) ,
+                    "US_Variable_Closing_Fee":calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("variable_closing_fee"))) ,
                     "US_Number_Variations": item.get("number_of_variations"),
                     "AMZ_Marketplace": item.get("marketplace_id"),
                 }
