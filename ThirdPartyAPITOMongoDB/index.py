@@ -89,7 +89,7 @@ def collect_UK_data():
             break
 
         
-collect_UK_data()
+# collect_UK_data()
 
 def calculate_US_conversion(arg):
     _usdToGbp = 0.79
@@ -123,7 +123,6 @@ def collect_US_data():
             logger.info(f"Processing page {page} data...")
 
             # Process each item in the data array
-            processed_data = []
             for item in data_array:
                 processed_item = {
                     "ASIN": item.get("asin"),                    
@@ -144,16 +143,14 @@ def collect_US_data():
                     "US_Number_Variations": item.get("number_of_variations"),
                     "AMZ_Marketplace": item.get("marketplace_id"),
                 }
-                processed_data.append(processed_item)
-            # Put data dircetly on mongodb  insted json 
-            # Print the processed data
-            logger.info("Processed Data:")
-            for item in processed_data:
-                logger.info(json.dumps(item, indent=4))
             
-            logger.info(f"Page {page} processing done.")
-            logger.info("===== Starting next page =====")
 
+                # Insert the processed_item into MongoDB
+                US_Daily_Data.insert_one(processed_item)
+                
+                # Print the ASIN code of the inserted item
+                print(f"Inserted ASIN: {processed_item['ASIN']}")
+                print(processed_item)
             # Increment the page number
             page += 1
         else:
@@ -161,4 +158,4 @@ def collect_US_data():
             break
       
       
-# collect_US_data()
+collect_US_data()
