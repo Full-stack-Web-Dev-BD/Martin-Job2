@@ -2,7 +2,7 @@ import requests
 import time
 import schedule
 import logging
-from datetime import datetime
+from datetime import datetime,timedelta
 
 
 from pymongo import MongoClient
@@ -108,8 +108,8 @@ def collect_UK_data():
                     "UK_Time_Datestamp": datetime.now().isoformat()
                 }
                 
-                UK_Daily_Data.insert_one(processed_item)
-                print("Inserted ")
+                inserted= UK_Daily_Data.insert_one(processed_item)
+                print(f"Inserted document ID: {inserted.inserted_id}")
 
             # Increment the page number
             page += 1
@@ -175,8 +175,8 @@ def collect_US_data():
             
 
                 # Insert the processed_item into MongoDB
-                US_Daily_Data.insert_one(processed_item)
-                print(f"Inserted ")
+                inserted= US_Daily_Data.insert_one(processed_item)
+                print(f"Inserted document ID: {inserted.inserted_id}")
             # Increment the page number
             page += 1
         else:
@@ -187,15 +187,33 @@ def collect_US_data():
 
 
     
-def run_daily_tasks():
-    collect_UK_data()
-    collect_US_data()
+# Function to schedule daily tasks
+def schedule_daily_tasks():
+    # Calculate initial delay until 1 AM GMT
+    now = datetime.utcnow()
+    target_time_UK = datetime(now.year, now.month, now.day, 1, 0, 0)
+    if now.hour >= 1:
+        target_time_UK += timedelta(days=1)  # If it's past 1 AM GMT today, schedule for tomorrow
+    
+    initial_delay_UK = (target_time_UK - now).total_seconds()
 
-# Run the tasks immediately when the script starts
-run_daily_tasks()
+    # Calculate initial delay until 3 AM GMT
+    target_time_US = datetime(now.year, now.month, now.day, 3, 0, 0)
+    if now.hour >= 3:
+        target_time_US += timedelta(days=1)  # If it's past 3 AM GMT today, schedule for tomorrow
+    
+    initial_delay_US = (target_time_US - now).total_seconds()
 
-# Schedule the tasks to run every 24 hours from the time the script starts
-schedule.every(24).hours.do(run_daily_tasks)
+    # Schedule tasks
+    schedule.every().day.at(target_time_UK.strftime("%H:%M")).do(collect_UK_data)
+    schedule.every().day.at(target_time_US.strftime("%H:%M")).do(collect_US_data)
+
+    # Print initial scheduling information
+    print(f"UK data scheduled at {target_time_UK.strftime('%H:%M')} GMT")
+    print(f"US data scheduled at {target_time_US.strftime('%H:%M')} GMT")
+
+# Initial scheduling of tasks
+schedule_daily_tasks()
 
 # Main loop to keep the script running and check the schedule
 while True:
