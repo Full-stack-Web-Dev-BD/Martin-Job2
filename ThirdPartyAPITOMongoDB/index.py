@@ -43,7 +43,33 @@ def make_post_request(page):
         logger.error(f"An error occurred: {err}")
 
 # UK
+def add_decimal_point(number, asin):
+    if number:
+            
+        # Convert the number to a string
+        num_str = str(number)
 
+        # Determine the number of digits
+        num_digits = len(num_str)
+
+        # Add decimal point before the last two digits
+        if num_digits > 2:
+            result = float(num_str[:-2] + '.' + num_str[-2:])
+        elif num_digits == 2:
+            result = float('0.' + num_str)
+            # print(f"{asin, number}========>Danger: This is a 2-digit number.", result)
+        else:
+            result = float('0.0' + num_str if num_digits == 1 else '0.00')
+            # print(f"{asin, number}========>Most Danger: This is a 1-digit number.", result)
+
+        if num_digits == 3:
+            # print(f"{asin, number}======>Warning: This is a 3-digit number.", result)
+        return result
+    else:
+        return None
+    
+    
+    
 def collect_UK_data():
     page = 1
     while True:
@@ -56,18 +82,20 @@ def collect_UK_data():
                 break
 
             for item in data_array:
+                asinID= item.get("asin"),
+
                 processed_item = {
                     "ASIN": item.get("asin"),
-                    "UK_Buybox_Price": item.get("buybox_price"),
+                    "UK_Buybox_Price": add_decimal_point(item.get("buybox_price"), asin=asinID),                    
                     "UK_Competitive_Sellers": item.get("competitive_sellers"),
-                    "UK_FBA_Fees": item.get("amazon_fees", {}).get("fba_fees"),
-                    "UK_Lowest_Price_FBA": item.get("lowest_price_new_fba"),
-                    "UK_Lowest_Price_FBM": item.get("lowest_price_new_fbm"),
+                    "UK_FBA_Fees": add_decimal_point(item.get("amazon_fees", {}).get("fba_fees"), asin=asinID),                    
+                    "UK_Lowest_Price_FBA": add_decimal_point(item.get("lowest_price_new_fba"), asin=asinID),                    
+                    "UK_Lowest_Price_FBM": add_decimal_point(item.get("lowest_price_new_fbm"), asin=asinID),                    
                     "UK_FBA_Offers": item.get("new_fba_offers_count"),
                     "UK_FBM_Offers": item.get("new_fbm_offers_count"),
                     "UK_BSR": item.get("rank"),
-                    "UK_Referral_Fee": item.get("amazon_fees", {}).get("referral_fee"),
-                    "UK_Sales_Per_Month": item.get("sales_per_month"),
+                    "UK_Referral_Fee": add_decimal_point(item.get("amazon_fees", {}).get("referral_fee"), asin=asinID),                    
+                    "UK_Sales_Per_Month":add_decimal_point(item.get("sales_per_month"), asin=asinID),                    
                     "UK_Total_Offers": item.get("total_offers_count"),
                     "UK_Units_Per_Month": item.get("units_per_month"),
                     "UK_Variable_Closing_Fee": item.get("amazon_fees", {}).get("variable_closing_fee"),
@@ -78,10 +106,9 @@ def collect_UK_data():
                 
                 # Insert the processed_item into MongoDB
                 UK_Daily_Data.insert_one(processed_item)
-                
                 # Print the ASIN code of the inserted item
-                print(f"Inserted ASIN: {processed_item['ASIN']}")
-                print(processed_item)
+                # print(f"Inserted ASIN: {processed_item['ASIN']}")
+                # print(processed_item)
             
             # Increment the page number
             page += 1
@@ -89,7 +116,7 @@ def collect_UK_data():
             break
 
         
-# collect_UK_data()
+collect_UK_data()
 
 def calculate_US_conversion(arg):
     _usdToGbp = 0.79
@@ -141,6 +168,7 @@ def collect_US_data():
                     "US_Units_Per_Month": item.get("units_per_month"),
                     "US_Variable_Closing_Fee":calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("variable_closing_fee"))) ,
                     "US_Number_Variations": item.get("number_of_variations"),
+                    "US_Time_Datestamp": datetime.now().isoformat(),
                     "AMZ_Marketplace": item.get("marketplace_id"),
                 }
             
@@ -158,4 +186,4 @@ def collect_US_data():
             break
       
       
-collect_US_data()
+# collect_US_data()
