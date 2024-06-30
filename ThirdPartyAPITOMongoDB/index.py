@@ -45,7 +45,6 @@ def make_post_request(page):
 # UK
 def add_decimal_point(number, asin):
     if number:
-            
         # Convert the number to a string
         num_str = str(number)
 
@@ -57,18 +56,20 @@ def add_decimal_point(number, asin):
             result = float(num_str[:-2] + '.' + num_str[-2:])
         elif num_digits == 2:
             result = float('0.' + num_str)
-            # print(f"{asin, number}========>Danger: This is a 2-digit number.", result)
+            print(f"2-digit number-->{asin, number}=> ",result)
         else:
             result = float('0.0' + num_str if num_digits == 1 else '0.00')
-            # print(f"{asin, number}========>Most Danger: This is a 1-digit number.", result)
+            print(f"1-digit number------>{asin, number}=> ",result)
 
         if num_digits == 3:
-            # print(f"{asin, number}======>Warning: This is a 3-digit number.", result)
+            print(f"3-digit number--->{asin, number} ==> ",result)
+
+        # Format the result to ensure two decimal places
+        result = f"{result:.2f}"
         return result
     else:
         return None
-    
-    
+
     
 def collect_UK_data():
     page = 1
@@ -116,7 +117,6 @@ def collect_UK_data():
             break
 
         
-collect_UK_data()
 
 def calculate_US_conversion(arg):
     _usdToGbp = 0.79
@@ -168,8 +168,8 @@ def collect_US_data():
                     "US_Units_Per_Month": item.get("units_per_month"),
                     "US_Variable_Closing_Fee":calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("variable_closing_fee"))) ,
                     "US_Number_Variations": item.get("number_of_variations"),
-                    "US_Time_Datestamp": datetime.now().isoformat(),
                     "AMZ_Marketplace": item.get("marketplace_id"),
+                    "US_Time_Datestamp": datetime.now().isoformat(),
                 }
             
 
@@ -177,13 +177,11 @@ def collect_US_data():
                 US_Daily_Data.insert_one(processed_item)
                 
                 # Print the ASIN code of the inserted item
-                print(f"Inserted ASIN: {processed_item['ASIN']}")
-                print(processed_item)
             # Increment the page number
             page += 1
         else:
             logger.error(f"Failed to retrieve data for page {page}. Exiting loop.")
             break
       
-      
-# collect_US_data()
+collect_UK_data()
+collect_US_data()
