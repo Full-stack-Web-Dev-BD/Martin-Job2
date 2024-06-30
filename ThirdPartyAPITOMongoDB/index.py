@@ -1,5 +1,6 @@
 import requests
-import json
+import time
+import schedule
 import logging
 from datetime import datetime
 
@@ -56,14 +57,14 @@ def add_decimal_point(number, asin):
             result = float(num_str[:-2] + '.' + num_str[-2:])
         elif num_digits == 2:
             result = float('0.' + num_str)
-            print(f"2-digit number-->{asin, number}=> ",result)
+            # print(f"2-digit number-->{asin, number}=> ",result)
         else:
             result = float('0.0' + num_str if num_digits == 1 else '0.00')
-            print(f"1-digit number------>{asin, number}=> ",result)
+            # print(f"1-digit number------>{asin, number}=> ",result)
 
         if num_digits == 3:
-            print(f"3-digit number--->{asin, number} ==> ",result)
-
+            # print(f"3-digit number--->{asin, number} ==> ",result)
+            pass
         # Format the result to ensure two decimal places
         result = f"{result:.2f}"
         return result
@@ -72,6 +73,8 @@ def add_decimal_point(number, asin):
 
     
 def collect_UK_data():
+    print("====================Inserting UK Daily Data =========================")
+
     page = 1
     while True:
         data = make_post_request(page)
@@ -105,12 +108,9 @@ def collect_UK_data():
                     "UK_Time_Datestamp": datetime.now().isoformat()
                 }
                 
-                # Insert the processed_item into MongoDB
                 UK_Daily_Data.insert_one(processed_item)
-                # Print the ASIN code of the inserted item
-                # print(f"Inserted ASIN: {processed_item['ASIN']}")
-                # print(processed_item)
-            
+                print("Inserted ")
+
             # Increment the page number
             page += 1
         else:
@@ -134,6 +134,7 @@ def round_to_two_decimals(value):
 
     
 def collect_US_data():
+    print("====================Inserting US Daily Data =========================")
     page = 1
     while True:
         logger.info(f"Making POST request to RocketSource API for page {page}...")
@@ -175,13 +176,28 @@ def collect_US_data():
 
                 # Insert the processed_item into MongoDB
                 US_Daily_Data.insert_one(processed_item)
-                
-                # Print the ASIN code of the inserted item
+                print(f"Inserted ")
             # Increment the page number
             page += 1
         else:
             logger.error(f"Failed to retrieve data for page {page}. Exiting loop.")
             break
       
-collect_UK_data()
-collect_US_data()
+
+
+
+    
+def run_daily_tasks():
+    collect_UK_data()
+    collect_US_data()
+
+# Run the tasks immediately when the script starts
+run_daily_tasks()
+
+# Schedule the tasks to run every 24 hours from the time the script starts
+schedule.every(24).hours.do(run_daily_tasks)
+
+# Main loop to keep the script running and check the schedule
+while True:
+    schedule.run_pending()
+    time.sleep(60)  # Check the schedule every minute
