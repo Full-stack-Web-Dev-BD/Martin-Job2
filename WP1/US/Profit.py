@@ -14,9 +14,9 @@ after_update = []
 
 # Check if us_daily_data collection has any documents
 count = us_daily_data.count_documents({})
-print(f"Number of documents in us_daily_data: {count}")
 
 def fetch_and_update_us_profit():
+    print(f"Number of documents in us_daily_data: {count} sp upc lookup ")
     try:
         # Fetch unique ASIN values from US_Daily_Data
         unique_asins = us_daily_data.distinct('ASIN')
@@ -69,4 +69,4 @@ def parse_price(price_str):
     else:
         return 0  # Set default value to 0 for None or other non-string types
 
-fetch_and_update_us_profit() 
+# fetch_and_update_us_profit() 

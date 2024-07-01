@@ -1,77 +1,81 @@
-from pymongo import MongoClient
-from datetime import datetime
+import schedule
+import time
+from datetime import datetime, timedelta
 
-# Connect to MongoDB
-client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
-db = client['mvp2']
-sp_upc_lookup = db['sp_upc_lookup']
-us_daily_data = db['US_Daily_Data']
-uk_daily_data = db['UK_Daily_Data']
+# Import your functions for data insert/update and profit calculation
+from UK.C_to_C_sp_gsl_L2 import fetch_and_update_sp_gsl_lookup2
+from UK.C_to_C_sp_upc import fetch_and_update_sp_upc_lookup
+from UK.C_to_C_sp_upc_L2 import fetch_and_update_sp_upc_lookup2
+from UK.Profit_L1 import calculateProfit_sp_upc_lookup1
+from UK.Profit_L2 import calculateProfit_sp_upc_lookup2
+from UK.Profit_sp_gsl_L2 import calculateProfit_sp_gsl_lookup2
+from US.C_to_C_sp_upc import fetch_and_update_sp_upc_lookup as fetch_and_update_us_sp_upc_lookup
+from US.Profit import fetch_and_update_us_profit
 
-def update_sp_upc_lookup(data_cursor, update_fields, gsl_code):
-    data_found = False
-    for row in data_cursor:
-        data_found = True
-        asin = row.get('ASIN')
-        print("ASIN:", asin)
-        if not asin:
-            continue  # Skip rows without ASIN
+# Function to print details and time remaining
+def print_schedule_details():
+    current_time = datetime.now()
+    print(f"Current Time: {current_time.strftime('%Y-%m-%d %H:%M:%S')} GMT")
+    print("\nScheduled Jobs:")
+    for job in schedule.jobs:
+        job_func = job.job_func.__name__
+        next_run = job.next_run.strftime('%Y-%m-%d %H:%M:%S') if job.next_run else "None (Job finished)"
+        time_remaining = job.next_run - current_time if job.next_run else timedelta(seconds=0)
+        print(f"Function: {job_func}")
+        print(f"Scheduled Time: {next_run} (Time Remaining: {time_remaining})")
+        print("---")
 
-        update_data = {**{field: row.get(field) for field in update_fields}, "time_date_stamp": datetime.now()}
+print_schedule_details()
 
-        # Perform update
-        result = sp_upc_lookup.update_many(
-            {"asin": asin, "to_be_removed": {"$ne": "Y"}, "gsl_code": gsl_code},
-            {"$set": update_data}
-        )
+# Define job functions
+def job_fetch_and_update_sp_upc_lookup():
+    print(f"Running fetch_and_update_sp_upc_lookup at {datetime.now()} GMT")
+    fetch_and_update_sp_upc_lookup()
 
-        # Retrieve and log the updated document(s)
-        updated_documents= sp_upc_lookup.find({"asin": asin, "gsl_code": gsl_code})
-        for doc in updated_documents:
-          print(f"Updated {result.matched_count} documents for ASIN: {asin}")
-          print(f"Document ID: {doc['_id']}")
-        #     print("rough Data ===========================")
-        #     print("Updated Document:", doc)
-        #     print("===========>>>>>>>>>>>",data_cursor)
-        #     print("rough Data ===========================")
-        
+def job_fetch_and_update_sp_upc_lookup2():
+    print(f"Running fetch_and_update_sp_upc_lookup2 at {datetime.now()} GMT")
+    fetch_and_update_sp_upc_lookup2()
 
-    if not data_found:
-        print(f"No data found in the specified collection.")
+def job_fetch_and_update_sp_gsl_lookup2():
+    print(f"Running fetch_and_update_sp_gsl_lookup2 at {datetime.now()} GMT")
+    fetch_and_update_sp_gsl_lookup2()
 
-def fetch_and_update():
-    try:
-        # Update based on US daily data
-        us_count = us_daily_data.count_documents({})
-        print(f"Number of documents in us_daily_data: {us_count}")
+def job_calculateProfit_sp_upc_lookup1():
+    print(f"Running calculateProfit_sp_upc_lookup1 at {datetime.now()} GMT")
+    calculateProfit_sp_upc_lookup1()
 
-        us_daily_data_cursor = us_daily_data.find()
-        us_update_fields = [
-            "US_Buybox_Price",
-            "US_FBA_Fees",
-            "US_Variable_Closing_Fee",
-            "US_Referral_Fee"
-        ]
-        update_sp_upc_lookup(us_daily_data_cursor, us_update_fields, "B")
+def job_calculateProfit_sp_upc_lookup2():
+    print(f"Running calculateProfit_sp_upc_lookup2 at {datetime.now()} GMT")
+    calculateProfit_sp_upc_lookup2()
 
-        # Update based on UK daily data
-        uk_count = uk_daily_data.count_documents({})
-        print(f"Number of documents in uk_daily_data: {uk_count}")
+def job_calculateProfit_sp_gsl_lookup2():
+    print(f"Running calculateProfit_sp_gsl_lookup2 at {datetime.now()} GMT")
+    calculateProfit_sp_gsl_lookup2()
 
-        uk_daily_data_cursor = uk_daily_data.find()
-        uk_update_fields = [
-            "UK_Buybox_Price",
-            "UK_FBA_Fees",
-            "UK_Variable_Closing_Fee",
-            "UK_Referral_Fee"
-        ]
-        update_sp_upc_lookup(uk_daily_data_cursor, uk_update_fields, "C")
+def job_fetch_and_update_us_sp_upc_lookup():
+    print(f"Running fetch_and_update_us_sp_upc_lookup at {datetime.now()} GMT")
+    fetch_and_update_us_sp_upc_lookup()
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+def job_fetch_and_update_us_profit():
+    print(f"Running fetch_and_update_us_profit at {datetime.now()} GMT")
+    fetch_and_update_us_profit()
 
-    finally:
-        print("============Update completed successfully SP_UPC_LOOKUP from Daily Data Tables=============")
+# Schedule jobs
+schedule.every().day.at("04:00").do(job_fetch_and_update_sp_upc_lookup)
+schedule.every().day.at("04:15").do(job_fetch_and_update_sp_upc_lookup2)
+schedule.every().day.at("04:20").do(job_fetch_and_update_sp_gsl_lookup2)
 
-# Call the fetch_and_update function
-fetch_and_update()
+schedule.every().day.at("04:00").do(job_calculateProfit_sp_upc_lookup1)
+schedule.every().day.at("04:15").do(job_calculateProfit_sp_upc_lookup2)
+schedule.every().day.at("04:20").do(job_calculateProfit_sp_gsl_lookup2)
+
+schedule.every().day.at("04:00").do(job_fetch_and_update_us_sp_upc_lookup)
+schedule.every().day.at("04:00").do(job_fetch_and_update_us_profit)
+
+# Print initial schedule details
+
+# Run the scheduler
+while True:
+    schedule.run_pending()
+    print_schedule_details()
+    time.sleep(60)  # Check every minute

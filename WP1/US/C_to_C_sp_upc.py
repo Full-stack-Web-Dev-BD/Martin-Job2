@@ -14,9 +14,10 @@ after_update = []
 
 # Check if us_daily_data collection has any documents
 count = us_daily_data.count_documents({})
-print(f"Number of documents in us_daily_data: {count}")
 
-def fetch_and_update():
+def fetch_and_update_sp_upc_lookup():
+    print(f"Number of documents in us_daily_data: {count} sp upc lookup table ")
+
     try:
         # Fetch data from us_daily_data collection
         us_daily_data_cursor = us_daily_data.find()
@@ -54,5 +55,5 @@ def fetch_and_update():
     finally:
         print("============Update completed successfully SP_UPC_LOOKUP from US Daily Data  Table=============")
 
-# Call the fetch_and_update function
-fetch_and_update()
+# Call the fetch_and_update_sp_upc_lookup function
+# fetch_and_update_sp_upc_lookup()

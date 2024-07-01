@@ -13,7 +13,9 @@ uk_daily_data = db['UK_Daily_Data']
 count = uk_daily_data.count_documents({})
 print(f"Number of documents in uk_daily_data: {count}")
 
-def calculateProfit():
+def calculateProfit_sp_upc_lookup1():
+    print(f"Number of documents in uk_daily_data: {count} for SP UPC Lookup 1 table")
+    
     try:
         # Fetch unique ASIN values from UK_Daily_Data
         unique_asins = uk_daily_data.distinct('ASIN')
@@ -66,4 +68,4 @@ def parse_price(price_str):
     else:
         return 0  # Set default value to 0 for None or other non-string types
 
-calculateProfit() 
+# calculateProfit_sp_upc_lookup1() 

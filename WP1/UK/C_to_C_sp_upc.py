@@ -11,9 +11,9 @@ uk_daily_data = db['UK_Daily_Data']
  
 # Check if uk_daily_data collection has any documents
 count = uk_daily_data.count_documents({})
-print(f"Number of documents in uk_daily_data: {count}")
 
-def fetch_and_update():
+def fetch_and_update_sp_upc_lookup():
+    print(f"Number of documents in uk_daily_data: {count} Updating for sp_upc_lookup ")
     try:
         # Fetch data from uk_daily_data collection
         uk_daily_data_cursor = uk_daily_data.find()
@@ -52,5 +52,5 @@ def fetch_and_update():
     finally:
         print("============Update completed successfully SP_UPC_LOOKUP from Daily Data =============")
 
-# Call the fetch_and_update function
-fetch_and_update()
+# Call the fetch_and_update_sp_upc_lookup function
+# fetch_and_update_sp_upc_lookup()
