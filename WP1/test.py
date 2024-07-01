@@ -25,44 +25,6 @@ def print_schedule_details():
         print(f"Scheduled Time: {next_run} (Time Remaining: {time_remaining})")
         print("---")
 
-
-print_schedule_details()
-
-# Define job functions
-def job_fetch_and_update_sp_upc_lookup():
-    print(f"Running fetch_and_update_sp_upc_lookup at {datetime.now()} GMT")
-    fetch_and_update_sp_upc_lookup()
-
-def job_fetch_and_update_sp_upc_lookup2():
-    print(f"Running fetch_and_update_sp_upc_lookup2 at {datetime.now()} GMT")
-    fetch_and_update_sp_upc_lookup2()
-
-def job_fetch_and_update_sp_gsl_lookup2():
-    print(f"Running fetch_and_update_sp_gsl_lookup2 at {datetime.now()} GMT")
-    fetch_and_update_sp_gsl_lookup2()
-
-def job_calculateProfit_sp_upc_lookup1():
-    print(f"Running calculateProfit_sp_upc_lookup1 at {datetime.now()} GMT")
-    calculateProfit_sp_upc_lookup1()
-
-def job_calculateProfit_sp_upc_lookup2():
-    print(f"Running calculateProfit_sp_upc_lookup2 at {datetime.now()} GMT")
-    calculateProfit_sp_upc_lookup2()
-
-def job_calculateProfit_sp_gsl_lookup2():
-    print(f"Running calculateProfit_sp_gsl_lookup2 at {datetime.now()} GMT")
-    calculateProfit_sp_gsl_lookup2()
-
-def job_fetch_and_update_us_sp_upc_lookup():
-    print(f"Running fetch_and_update_us_sp_upc_lookup at {datetime.now()} GMT")
-    fetch_and_update_us_sp_upc_lookup()
-
-def job_fetch_and_update_us_profit():
-    print(f"Running fetch_and_update_us_profit at {datetime.now()} GMT")
-    fetch_and_update_us_profit()
-
-
-
 # Define a flag to ensure initialization runs only once
 initialized = False
 
@@ -82,10 +44,6 @@ def initialize_and_run_jobs():
         
         # Set initialized flag to True
         initialized = True
-        
-        
-initialize_and_run_jobs()
-
 
 # Schedule jobs
 schedule.every().day.at("04:00").do(job_fetch_and_update_sp_upc_lookup)
@@ -100,11 +58,13 @@ schedule.every().day.at("04:00").do(job_fetch_and_update_us_sp_upc_lookup)
 schedule.every().day.at("04:00").do(job_fetch_and_update_us_profit)
 
 # Print initial schedule details
+print_schedule_details()
+
+# Initialize and run all jobs once
+initialize_and_run_jobs()
 
 # Run the scheduler
 while True:
     schedule.run_pending()
     print_schedule_details()
     time.sleep(60)  # Check every minute
-
-
