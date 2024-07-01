@@ -8,6 +8,9 @@ from datetime import datetime,timedelta
 from pymongo import MongoClient
 from datetime import datetime
 
+
+scan_ids = [66646]
+
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
 db = client['mvp2']
@@ -19,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-API_URL = "https://app.rocketsource.io/api/v3/scans/66646"
+API_URL = "https://app.rocketsource.io/api/v3/scans/"
 API_KEY = "3440|CbZEnbJHKBFRadAjSWk94KiSSvwGu5WHBbG4hw0lea0c94cc"
 
 # Headers
@@ -29,13 +32,14 @@ headers = {
 }
 
 # Function to make the POST request
-def make_post_request(page):
+def make_post_request(page, code):
     body = {
         "per_page": 100,
         "page": page
     }
     try:
-        response = requests.post(API_URL, headers=headers, json=body)
+        full_url = API_URL + str(code)  # Convert numeric code to string if necessary
+        response = requests.post(full_url, headers=headers, json=body)
         response.raise_for_status()  # Raise an exception for HTTP errors
         return response.json()
     except requests.exceptions.HTTPError as http_err:
@@ -74,48 +78,50 @@ def add_decimal_point(number, asin):
     
 def collect_UK_data():
     print("====================Inserting UK Daily Data =========================")
-
-    page = 1
-    while True:
-        data = make_post_request(page)
-        
-        if data:
-            data_array = data.get("data", [])
+    def fetchData(code):
+        page = 1
+        while True:
+            data = make_post_request(page, code)
             
-            if not data_array:
+            if data:
+                data_array = data.get("data", [])
+                
+                if not data_array:
+                    break
+
+                for item in data_array:
+                    asinID= item.get("asin"),
+
+                    processed_item = {
+                        "ASIN": item.get("asin"),
+                        "UK_Buybox_Price": add_decimal_point(item.get("buybox_price"), asin=asinID),                    
+                        "UK_Competitive_Sellers": item.get("competitive_sellers"),
+                        "UK_FBA_Fees": add_decimal_point(item.get("amazon_fees", {}).get("fba_fees"), asin=asinID),                    
+                        "UK_Lowest_Price_FBA": add_decimal_point(item.get("lowest_price_new_fba"), asin=asinID),                    
+                        "UK_Lowest_Price_FBM": add_decimal_point(item.get("lowest_price_new_fbm"), asin=asinID),                    
+                        "UK_FBA_Offers": item.get("new_fba_offers_count"),
+                        "UK_FBM_Offers": item.get("new_fbm_offers_count"),
+                        "UK_BSR": item.get("rank"),
+                        "UK_Referral_Fee": add_decimal_point(item.get("amazon_fees", {}).get("referral_fee"), asin=asinID),                    
+                        "UK_Sales_Per_Month":add_decimal_point(item.get("sales_per_month"), asin=asinID),                    
+                        "UK_Total_Offers": item.get("total_offers_count"),
+                        "UK_Units_Per_Month": item.get("units_per_month"),
+                        "UK_Variable_Closing_Fee": item.get("amazon_fees", {}).get("variable_closing_fee"),
+                        "UK_Number_Variations": item.get("number_of_variations"),
+                        "AMZ_Marketplace": item.get("marketplace_id"),
+                        "UK_Time_Datestamp": datetime.now().isoformat()
+                    }
+                    
+                    inserted= UK_Daily_Data.insert_one(processed_item)
+                    print(f"Inserted document ID: {inserted.inserted_id}")
+
+                # Increment the page number
+                page += 1
+            else:
                 break
 
-            for item in data_array:
-                asinID= item.get("asin"),
-
-                processed_item = {
-                    "ASIN": item.get("asin"),
-                    "UK_Buybox_Price": add_decimal_point(item.get("buybox_price"), asin=asinID),                    
-                    "UK_Competitive_Sellers": item.get("competitive_sellers"),
-                    "UK_FBA_Fees": add_decimal_point(item.get("amazon_fees", {}).get("fba_fees"), asin=asinID),                    
-                    "UK_Lowest_Price_FBA": add_decimal_point(item.get("lowest_price_new_fba"), asin=asinID),                    
-                    "UK_Lowest_Price_FBM": add_decimal_point(item.get("lowest_price_new_fbm"), asin=asinID),                    
-                    "UK_FBA_Offers": item.get("new_fba_offers_count"),
-                    "UK_FBM_Offers": item.get("new_fbm_offers_count"),
-                    "UK_BSR": item.get("rank"),
-                    "UK_Referral_Fee": add_decimal_point(item.get("amazon_fees", {}).get("referral_fee"), asin=asinID),                    
-                    "UK_Sales_Per_Month":add_decimal_point(item.get("sales_per_month"), asin=asinID),                    
-                    "UK_Total_Offers": item.get("total_offers_count"),
-                    "UK_Units_Per_Month": item.get("units_per_month"),
-                    "UK_Variable_Closing_Fee": item.get("amazon_fees", {}).get("variable_closing_fee"),
-                    "UK_Number_Variations": item.get("number_of_variations"),
-                    "AMZ_Marketplace": item.get("marketplace_id"),
-                    "UK_Time_Datestamp": datetime.now().isoformat()
-                }
-                
-                inserted= UK_Daily_Data.insert_one(processed_item)
-                print(f"Inserted document ID: {inserted.inserted_id}")
-
-            # Increment the page number
-            page += 1
-        else:
-            break
-
+    for code in scan_ids:
+        fetchData(code)
         
 
 def calculate_US_conversion(arg):
