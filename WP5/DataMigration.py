@@ -16,7 +16,7 @@ def migrate_data():
     try:
         # Get all ASINs from GroupB
         groupB_asins = set(doc['ASIN'] for doc in groupB_collection.find({}, {'ASIN': 1}))
-        
+        print(groupB_collection)
         # Process collections with TYPE 'S'
         for collection_name in groupA_collections_s:
             collection = db[collection_name]
