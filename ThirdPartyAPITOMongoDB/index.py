@@ -194,7 +194,10 @@ def collect_US_data():
         fetch_data(scanID)
 
 
-
+# running Now 
+print("Running Manual Data collecting  UK/US")
+collect_UK_data()
+collect_US_data()
     
 # Function to schedule daily tasks
 def schedule_daily_tasks():
