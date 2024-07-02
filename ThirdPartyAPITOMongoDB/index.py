@@ -9,7 +9,7 @@ from pymongo import MongoClient
 from datetime import datetime
 
 
-scan_ids = [66646]
+scan_ids = [68029,68033]
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
