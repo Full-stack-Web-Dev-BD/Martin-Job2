@@ -41,7 +41,7 @@ def fetch_and_update_sp_upc_lookup():
                 {"$set": update_data}
             )
 
-            print(f"Updated {result.matched_count} documents for ASIN: {asin}")
+            print(f"==>Updated {result.matched_count} documents for ASIN: {asin}")
 
         if not data_found:
             print("No data found in uk_daily_data collection.")

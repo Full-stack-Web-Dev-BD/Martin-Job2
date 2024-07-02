@@ -11,7 +11,6 @@ uk_daily_data = db['UK_Daily_Data']
  
 # Check if uk_daily_data collection has any documents
 count = uk_daily_data.count_documents({})
-print(f"Number of documents in uk_daily_data: {count}")
 
 def calculateProfit_sp_upc_lookup1():
     print(f"Number of documents in uk_daily_data: {count} for SP UPC Lookup 1 table")
