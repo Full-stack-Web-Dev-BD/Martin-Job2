@@ -12,7 +12,7 @@ db = client['mvp2']
 UK_Daily_Data = db['UK_Daily_Data']
 
 # Configuration
-API_URL = "https://app.rocketsource.io/api/v3/scans/66646"
+API_URL = "https://app.rocketsource.io/api/v3/scans/67521"
 API_KEY = "3440|CbZEnbJHKBFRadAjSWk94KiSSvwGu5WHBbG4hw0lea0c94cc"
 
 # Headers
