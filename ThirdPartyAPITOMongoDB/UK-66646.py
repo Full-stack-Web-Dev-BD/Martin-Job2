@@ -37,7 +37,7 @@ def make_post_request(page):
         print(f"An error occurred: {err}")
 
 # UK
-def add_decimal_point(number):
+def add_decimal_point(number, asin):
     if number:
         # Convert the number to a string
         num_str = str(number)
