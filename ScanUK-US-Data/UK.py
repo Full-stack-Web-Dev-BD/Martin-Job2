@@ -102,11 +102,11 @@ def process_page(page, scanID):
 
     return None, page, 0
 
-def collect_UK_data(scanID, page):
-    print(f"=========Inserting UK Daily Data ======  ScanID, Total Page[{scanID, page}]")
+def collect_UK_data(scanID, totalPage):
+    print(f"=========Inserting UK Daily Data ======  ScanID, Total Page[{scanID, totalPage}]")
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_page = {executor.submit(process_page, page, scanID): page for page in range(1, page)}
+        future_to_page = {executor.submit(process_page, page, scanID): page for page in range(1, totalPage)}
 
         for future in as_completed(future_to_page):
             page = future_to_page[future]
@@ -121,4 +121,4 @@ def collect_UK_data(scanID, page):
 
 if __name__ == "__main__":
     for scanDetails in UK_SCAN_IDS :
-        collect_UK_data(scanDetails['scanID'],scanDetails['page'],)
+        collect_UK_data(scanDetails['scanID'],scanDetails['page'])

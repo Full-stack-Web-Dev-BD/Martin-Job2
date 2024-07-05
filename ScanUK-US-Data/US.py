@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 from pymongo import MongoClient
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
+from config import US_SCAN_IDS
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
@@ -11,7 +11,6 @@ db = client['mvp2']
 US_Daily_Data = db['US_Daily_Data']
 
 # Configuration
-API_URL = "https://app.rocketsource.io/api/v3/scans/67521"
 API_KEY = "3440|CbZEnbJHKBFRadAjSWk94KiSSvwGu5WHBbG4hw0lea0c94cc"
 
 # Headers
@@ -21,7 +20,8 @@ headers = {
 }
 
 # Function to make the POST request
-def make_post_request(page):
+def make_post_request(page, scanID):
+    API_URL = f"https://app.rocketsource.io/api/v3/scans/{scanID}"
     body = {
         "per_page": 100,
         "page": page
@@ -49,8 +49,8 @@ def round_to_two_decimals(value):
     else:
         return None
 
-def process_page(page):
-    data = make_post_request(page)
+def process_page(page, scanID):
+    data = make_post_request(page, scanID)
     if data:
         data_array = data.get("data", [])
         if not data_array:
@@ -86,11 +86,11 @@ def process_page(page):
 
     return None, page
 
-def collect_US_data():
-    print("====================Inserting US Daily Data =========================")
+def collect_US_data(scanID, totalPage):
+    print(f"====================Inserting US Daily Data ======wit scanID , Page[{scanID, totalPage}]")
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_page = {executor.submit(process_page, page): page for page in range(1, 1000)}
+        future_to_page = {executor.submit(process_page, page, scanID): page for page in range(1, totalPage)}
 
         for future in as_completed(future_to_page):
             page = future_to_page[future]
@@ -107,4 +107,6 @@ def collect_US_data():
                 print(f"Page {page} generated an exception: {exc}")
 
 if __name__ == "__main__":
-    collect_US_data()
+    for scanDetails in US_SCAN_IDS:
+        collect_US_data(scanDetails['scanID'],scanDetails['page'])
+    
