@@ -1,0 +1,41 @@
+Hey!
+
+
+
+Thank you so much for reaching out to my service!
+
+Are you're seeking to build or rebuild a modern and clean custom website that can be responsive and viewed on all device screens, including Mobile | Desktop | Laptop ? You've come to the right place !
+
+
+My name is Alamin, and I have over 5+ years of expertise in full-stack website development. I create website and develop websites for individuals, small businesses, corporate field.
+
+
+
+What do I offer to build your dream site?
+Programming language: 
+JavaScript
+Python
+
+️Front-end Development:
+React js
+Next js
+Template Customization
+TypeScript
+CSS/SCSS, HTML, JavaScript, Jquery
+
+
+️Backend Development:
+Python -Django
+Node.js - Express, Socket.io
+Databases - MYSQL, MongoDB, NoSQL, Firebase
+
+
+Variety of style packages:
+Tailwind CSS
+Bootstrap
+Material-UI
+Ant Design
+Custom Components
+Styled-components
+
+
