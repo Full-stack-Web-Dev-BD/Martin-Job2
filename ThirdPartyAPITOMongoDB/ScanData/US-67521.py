@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from pymongo import MongoClient
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from config import TOTAL_PAGES  # Import the TOTAL_PAGES variable from config.py
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
@@ -89,21 +90,49 @@ def collect_US_data():
     print("====================Inserting US Daily Data =========================")
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_page = {executor.submit(process_page, page): page for page in range(1, 1000)}
-
-        for future in as_completed(future_to_page):
-            page = future_to_page[future]
+        page = 1
+        while True:
             start_time = time.time()
-            try:
-                last_inserted_id, page = future.result()
-                end_time = time.time()
-                time_taken = end_time - start_time
-                if last_inserted_id:
-                    print(f"=============Page {page} Completed inserting in {time_taken:.2f} seconds===== Here is a record ID: {last_inserted_id}")
-                else:
-                    print(f"No data found or inserted for page: {page}")
-            except Exception as exc:
-                print(f"Page {page} generated an exception: {exc}")
+            data = make_post_request(page)
+            if data:
+                data_array = data.get("data", [])
+                if not data_array:
+                    print(f"No more data found on page {page}. Exiting loop.")
+                    break
+
+                processed_items = []
+                for item in data_array:
+                    processed_item = {
+                        "ASIN": item.get("asin"),
+                        "US_BSR_Percentage": round_to_two_decimals(item.get("bsr_percentage")),
+                        "US_Buybox_Price": calculate_US_conversion(round_to_two_decimals(item.get("buybox_price"))),
+                        "US_Competitive_Sellers": item.get("competitive_sellers"),
+                        "US_FBA_Fees": calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("fba_fees"))),
+                        "US_Lowest_Price_FBA": calculate_US_conversion(round_to_two_decimals(item.get("lowest_price_new_fba"))),
+                        "US_Lowest_Price_FBM": calculate_US_conversion(round_to_two_decimals(item.get("lowest_price_new_fbm"))),
+                        "US_FBA_Offers": item.get("new_fba_offers_count"),
+                        "US_FBM_Offers": item.get("new_fbm_offers_count"),
+                        "US_BSR": item.get("rank"),
+                        "US_Referral_Fee": calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("referral_fee"))),
+                        "US_Sales_Per_Month": round_to_two_decimals(item.get("sales_per_month")),
+                        "US_Total_Offers": item.get("total_offers_count"),
+                        "US_Units_Per_Month": item.get("units_per_month"),
+                        "US_Variable_Closing_Fee": calculate_US_conversion(round_to_two_decimals(item.get("amazon_fees", {}).get("variable_closing_fee"))),
+                        "US_Number_Variations": item.get("number_of_variations"),
+                        "AMZ_Marketplace": item.get("marketplace_id"),
+                        "US_Time_Datestamp": datetime.now().isoformat(),
+                    }
+                    processed_items.append(processed_item)
+
+                if processed_items:
+                    result = US_Daily_Data.insert_many(processed_items)
+                    end_time = time.time()
+                    time_taken = end_time - start_time
+                    print(f"=============Page {page} Completed inserting in {time_taken:.2f} seconds")
+                    page += 1
+            else:
+                print(f"Failed to retrieve data for page {page}. Exiting loop.")
+                break
 
 if __name__ == "__main__":
     collect_US_data()
