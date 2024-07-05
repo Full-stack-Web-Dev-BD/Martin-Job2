@@ -5,6 +5,8 @@ import logging
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from config import UK_SCAN_IDS
+
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
@@ -12,7 +14,6 @@ db = client['mvp2']
 UK_Daily_Data = db['UK_Daily_Data']
 
 # Configuration
-API_URL = "https://app.rocketsource.io/api/v3/scans/67521"
 API_KEY = "3440|CbZEnbJHKBFRadAjSWk94KiSSvwGu5WHBbG4hw0lea0c94cc"
 
 # Headers
@@ -22,7 +23,9 @@ headers = {
 }
 
 # Function to make the POST request
-def make_post_request(page):
+def make_post_request(page, scanID):
+    API_URL = f"https://app.rocketsource.io/api/v3/scans/{scanID}"
+
     body = {
         "per_page": 100,
         "page": page
@@ -58,9 +61,9 @@ def add_decimal_point(number, asin):
     else:
         return None
 
-def process_page(page):
+def process_page(page, scanID):
     start_time = time.time()
-    data = make_post_request(page)
+    data = make_post_request(page,scanID )
     if data:
         data_array = data.get("data", [])
         if not data_array:
@@ -99,11 +102,11 @@ def process_page(page):
 
     return None, page, 0
 
-def collect_UK_data():
-    print("====================Inserting UK Daily Data =========================")
+def collect_UK_data(scanID, page):
+    print(f"=========Inserting UK Daily Data ======  ScanID, Total Page[{scanID, page}]")
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_page = {executor.submit(process_page, page): page for page in range(1, 1000)}
+        future_to_page = {executor.submit(process_page, page, scanID): page for page in range(1, page)}
 
         for future in as_completed(future_to_page):
             page = future_to_page[future]
@@ -117,4 +120,5 @@ def collect_UK_data():
                 print(f"Page {page} generated an exception: {exc}")
 
 if __name__ == "__main__":
-    collect_UK_data()
+    for scanDetails in UK_SCAN_IDS :
+        collect_UK_data(scanDetails['scanID'],scanDetails['page'],)
