@@ -1,3 +1,4 @@
+import time
 from pymongo import MongoClient
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
