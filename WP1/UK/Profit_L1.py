@@ -1,7 +1,7 @@
 # Calculate UK Profit for sp_upc_lookup 1st table 
 from pymongo import MongoClient
 from datetime import datetime
-import json
+from helper import parse_price
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://alamin:1zqbsg2vBlyY1bce@cluster0.sngd13i.mongodb.net/mvp2?retryWrites=true&w=majority')
@@ -17,7 +17,7 @@ def calculateProfit_sp_upc_lookup1():
         for asin in unique_asins:
             # Fetch all documents from sp_upc_lookup for this ASIN
             documents = sp_upc_lookup.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'},"gsl_code": "C"})
-            print("Document loaded ")
+
             for document in documents:
                 # Calculate UK_Profit for this document
                 uk_buybox_price = parse_price(document.get('UK_Buybox_Price_£'))
@@ -49,17 +49,5 @@ def calculateProfit_sp_upc_lookup1():
 
     print("============Completed Profit Calculatoin =============")
 
-def parse_price(price_str):
-    if isinstance(price_str, (int, float)):
-        return float(price_str)
-    elif isinstance(price_str, str):
-        # Remove currency symbols and commas, and then convert to float
-        try:
-            numeric_value = float(''.join(filter(lambda x: x.isdigit() or x == '.', price_str)))
-            return numeric_value
-        except ValueError:
-            return 0  # Set default value to 0 if cannot convert to float
-    else:
-        return 0  # Set default value to 0 for None or other non-string types
 
 calculateProfit_sp_upc_lookup1() 
