@@ -9,12 +9,7 @@ db = client['mvp2']
 sp_upc_lookup = db['sp_upc_lookup']
 uk_daily_data = db['UK_Daily_Data']
  
-# Check if uk_daily_data collection has any documents
-count = uk_daily_data.count_documents({})
-
 def calculateProfit_sp_upc_lookup1():
-    print(f"Number of documents in uk_daily_data: {count} for SP UPC Lookup 1 table")
-    
     try:
         # Fetch unique ASIN values from UK_Daily_Data
         unique_asins = uk_daily_data.distinct('ASIN')
@@ -67,4 +62,4 @@ def parse_price(price_str):
     else:
         return 0  # Set default value to 0 for None or other non-string types
 
-# calculateProfit_sp_upc_lookup1() 
+calculateProfit_sp_upc_lookup1() 
