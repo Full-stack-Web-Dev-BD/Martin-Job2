@@ -24,8 +24,8 @@ def fetch_and_update_sp_upc_lookup2():
         # Update sp_upc_lookup based on uk_daily_data
         for row in uk_daily_data_cursor:
             data_found = True
-            asin = row.get('ASIN')
-            print("asin", asin)
+            asin = row.get('ASIN') 
+            
             if not asin:
                 continue  # Skip rows without ASIN
              
