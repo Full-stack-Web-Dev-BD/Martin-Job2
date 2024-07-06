@@ -34,6 +34,9 @@ def job_fetch_and_update_sp_upc_lookup():
     fetch_and_update_sp_upc_lookup()
     print_schedule_details()
 
+job_fetch_and_update_sp_upc_lookup()
+
+
 def job_fetch_and_update_sp_upc_lookup2():
     print(f"Running fetch_and_update_sp_upc_lookup2 at {datetime.now()} GMT")
     fetch_and_update_sp_upc_lookup2()
@@ -68,6 +71,11 @@ def job_fetch_and_update_us_profit():
     print(f"Running fetch_and_update_us_profit at {datetime.now()} GMT")
     fetch_and_update_us_profit()
     print_schedule_details()
+
+
+print(f"Manual Running for ")
+
+
 
 # Schedule jobs
 print("Scheduling jobs...")
