@@ -192,34 +192,29 @@ def update_sp_ID_lookup_Profit(asin):
 
 
 
-
-
-
-
-
-
-
-
-
 def process_batch(batch):
     for row in batch:
         asin = row.get('ASIN')
         if not asin:
             continue  # Skip rows without ASIN
-        # sp upc lookup
+
+        # Group 1
         update_sp_upc_lookup(asin, row)
         calculate_sp_upc_lookup_Profit(asin)
-        # sp upc lookup 2
+
+        # Group 2
         update_sp_upc_lookup_2(asin, row)
         calculate_sp_upc_lookup_2_Profit(asin)
         
-        # sp gsl lookup 2        # 
+        # Group 3
         update_sp_gsl_lookup_2(asin,row)
         update_sp_gsl_lookup_2_Profit(asin)
         
-        # sp Id lookup
+        # Group 4
         update_sp_ID_lookup(asin, row)
         update_sp_ID_lookup_Profit(asin)
+        
+        
 
 def fetch_and_update_sp_upc_lookup():
     try:
@@ -245,8 +240,6 @@ def fetch_and_update_sp_upc_lookup():
         print(f"An error occurred: {e}")
     finally:
         print("============Update completed successfully SP_UPC_LOOKUP from Daily Data =============")
-
-
 
 
 
