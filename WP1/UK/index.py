@@ -9,6 +9,7 @@ db = client['mvp2']
 sp_upc_lookup = db['sp_upc_lookup']
 sp_upc_lookup2 = db['sp_upc_lookup2']
 sp_gsl_lookup2 = db['sp_gsl_lookup2']
+sp_ID_lookup = db['sp_ID_lookup']
 uk_daily_data = db['UK_Daily_Data']
 
 # Configuration
@@ -145,6 +146,52 @@ def update_sp_gsl_lookup_2_Profit(asin):
 
 
 
+# SP ID  Lookup
+def update_sp_ID_lookup(asin, row):
+    update_data = {
+        "UK_Buybox_Price_£": row.get('UK_Buybox_Price'),
+        "UK_FBA_Fees_£": row.get('UK_FBA_Fees'),
+        "UK_Variable_Closing_Fee_£": row.get('UK_Variable_Closing_Fee'),
+        "UK_Referral_Fee_£": row.get('UK_Referral_Fee'),
+        "time_date_stamp": datetime.now()
+    }
+    # Perform update
+    result = sp_ID_lookup.update_many(
+        {"asin": asin, "to_be_removed": {"$ne": "Y"}, "gsl_code": "A"},
+        {"$set": update_data}
+    )
+    print(f"Updated {result.matched_count} documents for ASIN: {asin}")
+
+def update_sp_ID_lookup_Profit(asin):
+    documents = sp_ID_lookup.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'}, "gsl_code": "A"})
+    for document in documents:
+        # Calculate UK_Profit for this document
+        uk_buybox_price = parse_price(document.get('UK_Buybox_Price_£'))
+        uk_fba_fees = parse_price(document.get('UK_FBA_Fees_£'))
+        uk_variable_closing_fee = parse_price(document.get('UK_Variable_Closing_Fee_£'))
+        uk_referral_fee = parse_price(document.get('UK_Referral_Fee_£'))
+        seller_price = parse_price(document.get('seller_price'))
+        
+        # Handle missing or non-numeric fields
+        if any(price is None for price in [uk_buybox_price, uk_fba_fees, uk_variable_closing_fee, uk_referral_fee, seller_price]):
+            print(f"Skipping document with ASIN {asin} due to missing or invalid price data")
+            continue
+            
+            
+        # print(f"{uk_buybox_price} - ({uk_fba_fees} + {uk_variable_closing_fee} + {uk_referral_fee} + {seller_price})")
+        uk_profit = uk_buybox_price - (uk_fba_fees + uk_variable_closing_fee + uk_referral_fee + seller_price)
+        uk_profit_rounded = round(uk_profit, 2)
+        
+        # Update the document with the calculated UK_Profit
+        sp_ID_lookup.update_one(
+            {'_id': document['_id'],},
+            {'$set': {'UK_Profit': uk_profit_rounded}}
+        )
+        
+        print(f"Updated document with ASIN {asin}  ",document.get('_id'))
+
+
+
 
 
 
@@ -165,9 +212,14 @@ def process_batch(batch):
         # sp upc lookup 2
         update_sp_upc_lookup_2(asin, row)
         calculate_sp_upc_lookup_2_Profit(asin)
+        
+        # sp gsl lookup 2        # 
         update_sp_gsl_lookup_2(asin,row)
         update_sp_gsl_lookup_2_Profit(asin)
         
+        # sp Id lookup
+        update_sp_ID_lookup(asin, row)
+        update_sp_ID_lookup_Profit(asin)
 
 def fetch_and_update_sp_upc_lookup():
     try:
