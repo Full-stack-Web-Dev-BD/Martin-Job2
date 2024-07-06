@@ -37,6 +37,7 @@ def update_sp_upc_lookup(asin, row):
 
 
 def calculate_sp_upc_lookup_Profit(asin):
+    print(f"asin {asin}")
     documents = sp_upc_lookup.find({'asin': asin, 'to_be_removed': {'$ne': 'Y'},"gsl_code": "C"})
     for document in documents:
         # Calculate UK_Profit for this document
@@ -64,7 +65,6 @@ def calculate_sp_upc_lookup_Profit(asin):
         
         
 def fetch_and_update_sp_upc_lookup():
-    print(f"Number of documents in uk_daily_data: {count} Updating for sp_upc_lookup ")
     try:
         # Fetch data from uk_daily_data collection
         uk_daily_data_cursor = uk_daily_data.find()
@@ -77,7 +77,7 @@ def fetch_and_update_sp_upc_lookup():
             if not asin:
                 continue  # Skip rows without ASIN
             # Start Update 
-            update_sp_upc_lookup(asin, row)
+            # update_sp_upc_lookup(asin, row)
             calculate_sp_upc_lookup_Profit(asin)
         if not data_found:
             print("No data found in uk_daily_data collection.")
