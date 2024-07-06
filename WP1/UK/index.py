@@ -192,29 +192,68 @@ def update_sp_ID_lookup_Profit(asin):
 
 
 
+# def process_batch(batch):
+#     for row in batch:
+#         asin = row.get('ASIN')
+#         if not asin:
+#             continue  # Skip rows without ASIN
+
+#         # Group 1
+#         update_sp_upc_lookup(asin, row)
+#         calculate_sp_upc_lookup_Profit(asin)
+
+#         # Group 2
+#         update_sp_upc_lookup_2(asin, row)
+#         calculate_sp_upc_lookup_2_Profit(asin)
+        
+#         # Group 3
+#         update_sp_gsl_lookup_2(asin,row)
+#         update_sp_gsl_lookup_2_Profit(asin)
+        
+#         # Group 4
+#         update_sp_ID_lookup(asin, row)
+#         update_sp_ID_lookup_Profit(asin)
+
+        
 def process_batch(batch):
-    for row in batch:
-        asin = row.get('ASIN')
-        if not asin:
-            continue  # Skip rows without ASIN
+    with open("batch_processing_times.txt", "a") as log_file:
+        for row in batch:
+            asin = row.get('ASIN')
+            if not asin:
+                continue  # Skip rows without ASIN
 
-        # Group 1
-        update_sp_upc_lookup(asin, row)
-        calculate_sp_upc_lookup_Profit(asin)
+            # Group 1
+            start_time = time.time()
+            update_sp_upc_lookup(asin, row)
+            calculate_sp_upc_lookup_Profit(asin)
+            end_time = time.time()
+            duration_group1 = end_time - start_time
+            log_file.write(f"Group 1 processed in {duration_group1:.2f} seconds for ASIN {asin}\n")
 
-        # Group 2
-        update_sp_upc_lookup_2(asin, row)
-        calculate_sp_upc_lookup_2_Profit(asin)
-        
-        # Group 3
-        update_sp_gsl_lookup_2(asin,row)
-        update_sp_gsl_lookup_2_Profit(asin)
-        
-        # Group 4
-        update_sp_ID_lookup(asin, row)
-        update_sp_ID_lookup_Profit(asin)
-        
-        
+            # Group 2
+            start_time = time.time()
+            update_sp_upc_lookup_2(asin, row)
+            calculate_sp_upc_lookup_2_Profit(asin)
+            end_time = time.time()
+            duration_group2 = end_time - start_time
+            log_file.write(f"Group 2 processed in {duration_group2:.2f} seconds for ASIN {asin}\n")
+
+            # Group 3
+            start_time = time.time()
+            update_sp_gsl_lookup_2(asin, row)
+            update_sp_gsl_lookup_2_Profit(asin)
+            end_time = time.time()
+            duration_group3 = end_time - start_time
+            log_file.write(f"Group 3 processed in {duration_group3:.2f} seconds for ASIN {asin}\n")
+
+            # Group 4
+            start_time = time.time()
+            update_sp_ID_lookup(asin, row)
+            update_sp_ID_lookup_Profit(asin)
+            end_time = time.time()
+            duration_group4 = end_time - start_time
+            log_file.write(f"Group 4 processed in {duration_group4:.2f} seconds for ASIN {asin}\n")
+
 
 def fetch_and_update_sp_upc_lookup():
     try:
